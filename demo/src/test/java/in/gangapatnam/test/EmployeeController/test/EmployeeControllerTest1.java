@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,32 +36,54 @@ import in.gangapatnam.demo.repository.EmployeeRepository;
 @AutoConfigureMockMvc
 public class EmployeeControllerTest1 {
 
-	
+
 	@Autowired
 	MockMvc mockMvc;
-	
-	
+
+
 	@MockBean
 	EmployeeRepository employeeRepository;
-	
-	
 
-	
+
+
+
 	@Test
-	public void testAllEmployeeList() throws Exception{
-		
+	public void testgetAllEmployees() throws Exception{
+
 		List<Employee> emp = Arrays.asList(new Employee("anil", "anil", "a@gmail.com"),new Employee("sunil", "sunil", "b@gmail.com"));
 		Mockito.when(employeeRepository.findAll()).thenReturn(emp);
-		
-		
+
+
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/employees").accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON);
-		
+
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-		
+
 		//assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-		
+
 		assertNotEquals(null, result.getResponse().getContentAsString());
-		
-		
+
+		System.out.println("testgetAllEmployees"+result.getResponse().getContentAsString());
+
+
+	}
+
+	@Test
+	public void testgetEmployeeById() throws Exception{
+
+		Long value = 100L;
+		Optional<Employee> emp = Optional.ofNullable(value == null ? new Employee("firstname", "lastname", "emailid") : new Employee("firstname", "lastname", "emailid"));
+				Mockito.when(employeeRepository.findById(100L)).thenReturn(emp);
+
+
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("employees/{id}","100").contentType(MediaType.APPLICATION_JSON);
+
+		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+		//assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+		System.out.println("getcontent"+result.getResponse().getContentAsString());
+		assertNotEquals(null, result.getResponse().getContentAsString());
+
+
 	}
 }
