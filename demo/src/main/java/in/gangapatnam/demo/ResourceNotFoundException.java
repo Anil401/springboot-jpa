@@ -1,4 +1,4 @@
-package net.guides.demo;
+package in.gangapatnam.demo;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

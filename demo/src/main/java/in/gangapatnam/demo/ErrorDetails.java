@@ -1,4 +1,4 @@
-package net.guides.demo;
+package in.gangapatnam.demo;
 import java.util.Date;
 
 public class ErrorDetails {
