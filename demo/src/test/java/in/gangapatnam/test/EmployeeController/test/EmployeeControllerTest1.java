@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -62,7 +63,12 @@ public class EmployeeControllerTest1 {
 
 		assertNotEquals(null, result.getResponse().getContentAsString());
 
+		
 		System.out.println("testgetAllEmployees"+result.getResponse().getContentAsString());
+		
+		/*assert eEquls 
+		 * String expected = "{\"id\":100,\"firstName\":\"anil\",\"lastName\":\"lastname\",\"emailId\":\"anil@gmail.com\"}";
+		JSONAssert.assertEquals(expected, result.getResponse().getContentAsString(), false);*/
 
 
 	}
