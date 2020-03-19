@@ -86,11 +86,13 @@ public class EmployeeControllerIntegrationTest {
 	public void getEmployeeByIdTestCase() throws Exception{
 
 		Long value = 100L;
+
+		String uri = "/employees/100";
 		Optional<Employee> emp = Optional.ofNullable(value == null ? new Employee("firstname", "lastname", "emailid") : new Employee("firstname", "lastname", "emailid"));
 		Mockito.when(employeeRepository.findById(100L)).thenReturn(emp);
 
 
-		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("employees/100").accept(MediaType.ALL);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(uri).accept(MediaType.ALL);
 
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
@@ -107,11 +109,13 @@ public class EmployeeControllerIntegrationTest {
 	public void createEmployeeTestCase() throws Exception{
 
 
-		
+		Long value = 100L;
+		Optional<Employee> emp = Optional.ofNullable(value == null ? new Employee("firstname", "lastname", "emailid") : new Employee("firstname", "lastname", "emailid"));
+
 		String inputJson = "{\"id\":101,\"firstName\":\"sunil\",\"lastName\":\"ganga\",\"email\":\"sunil@gmail.com\"}";
 
 
-		Mockito.when(employeeRepository.findById(100L)).thenReturn(null);
+		Mockito.when(employeeRepository.findById(100L)).thenReturn(emp);
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/employees")
 				.contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson);
 
@@ -129,11 +133,17 @@ public class EmployeeControllerIntegrationTest {
 	@Test
 	public void updateEmployeeTestCase() throws Exception{
 
+
+
+
+		Long value = 100L;
+		Optional<Employee> emp = Optional.ofNullable(value == null ? new Employee("firstname", "lastname", "emailid") : new Employee("firstname", "lastname", "emailid"));
+
 		String uri = "/employees/100";
 		String inputJson = "{\"id\":101,\"firstName\":\"sunil\",\"lastName\":\"ganga\",\"email\":\"sunil@gmail.com\"}";
 
 
-		Mockito.when(employeeRepository.findById(100L)).thenReturn(null);
+		Mockito.when(employeeRepository.findById(100L)).thenReturn(emp);
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.put(uri)
 				.contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson);
 
@@ -150,11 +160,14 @@ public class EmployeeControllerIntegrationTest {
 	@Test
 	public void deleteEmployeeTestCase() throws Exception{
 
+		Long value = 100L;
+		Optional<Employee> emp = Optional.ofNullable(value == null ? new Employee("firstname", "lastname", "emailid") : new Employee("firstname", "lastname", "emailid"));
+
 		String uri = "/employees/100";
 		String inputJson = "{\"id\":101,\"firstName\":\"sunil\",\"lastName\":\"ganga\",\"email\":\"sunil@gmail.com\"}";
 
 
-		Mockito.when(employeeRepository.findById(100L)).thenReturn(null);
+		Mockito.when(employeeRepository.findById(100L)).thenReturn(emp);
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.delete(uri)
 				.contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson);
 
