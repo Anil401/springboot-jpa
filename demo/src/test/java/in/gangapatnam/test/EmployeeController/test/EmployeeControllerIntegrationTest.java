@@ -1,91 +1,170 @@
 package in.gangapatnam.test.EmployeeController.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotEquals;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockReset;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import in.gangapatnam.demo.Application;
+import in.gangapatnam.demo.controller.EmployeeController;
 import in.gangapatnam.demo.model.Employee;
+import in.gangapatnam.demo.repository.EmployeeRepository;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Application.class,webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 public class EmployeeControllerIntegrationTest {
-     @Autowired
-     private TestRestTemplate restTemplate;
 
-     @LocalServerPort
-     private int port;
 
-     private String getRootUrl() {
-         return "http://localhost:" + port;
-     }
+	@Test
+	public void contextLoads() {
 
-     @Test
-     public void contextLoads() {
+	}
 
-     }
+	@Autowired
+	MockMvc mockMvc;
 
-     @Test
-     public void testGetAllEmployees() {
-     HttpHeaders headers = new HttpHeaders();
-        HttpEntity<String> entity = new HttpEntity<String>(null, headers);
-        ResponseEntity<String> response = restTemplate.exchange(getRootUrl() + "/employees",
-        HttpMethod.GET, entity, String.class);  
-        assertNotNull(response.getBody());
-    }
 
-    @Test
-    public void testGetEmployeeById() {
-        Employee employee = restTemplate.getForObject(getRootUrl() + "/employees/1", Employee.class);
-        System.out.println(employee.getFirstName());
-        assertNotNull(employee);
-    }
+	@MockBean
+	EmployeeRepository employeeRepository;
 
-    @Test
-    public void testCreateEmployee() {
-        Employee employee = new Employee();
-        employee.setEmailId("admin@gmail.com");
-        employee.setFirstName("admin");
-        employee.setLastName("admin");
-        ResponseEntity<Employee> postResponse = restTemplate.postForEntity(getRootUrl() + "/employees", employee, Employee.class);
-        assertNotNull(postResponse);
-        assertNotNull(postResponse.getBody());
-    }
+	//@MockBean
+	//JpaRepository<Employee, Long> employeeRepository;
 
-    @Test
-    public void testUpdateEmployee() {
-        int id = 1;
-        Employee employee = restTemplate.getForObject(getRootUrl() + "/employees/" + id, Employee.class);
-        employee.setFirstName("admin1");
-        employee.setLastName("admin2");
-        restTemplate.put(getRootUrl() + "/employees/" + id, employee);
-        Employee updatedEmployee = restTemplate.getForObject(getRootUrl() + "/employees/" + id, Employee.class);
-        assertNotNull(updatedEmployee);
-    }
 
-    @Test
-    public void testDeleteEmployee() {
-         int id = 2;
-         Employee employee = restTemplate.getForObject(getRootUrl() + "/employees/" + id, Employee.class);
-         assertNotNull(employee);
-         restTemplate.delete(getRootUrl() + "/employees/" + id);
-         try {
-              employee = restTemplate.getForObject(getRootUrl() + "/employees/" + id, Employee.class);
-         } catch (final HttpClientErrorException e) {
-              assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
-         }
-    }
+
+
+	@Test
+	public void getAllEmployeesTestCase() throws Exception{
+
+		List<Employee> emp = Arrays.asList(new Employee("anil", "anil", "a@gmail.com"),new Employee("sunil", "sunil", "b@gmail.com"));
+		Mockito.when(employeeRepository.findAll()).thenReturn(emp);
+
+
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/employees").accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON);
+
+		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+		//assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+		assertNotEquals(null, result.getResponse().getContentAsString());
+
+
+		System.out.println("testgetAllEmployees"+result.getResponse().getContentAsString());
+
+		/*assert eEquls 
+		 * String expected = "{\"id\":100,\"firstName\":\"anil\",\"lastName\":\"lastname\",\"emailId\":\"anil@gmail.com\"}";
+		JSONAssert.assertEquals(expected, result.getResponse().getContentAsString(), false);*/
+
+
+	}
+
+	@Test
+	public void getEmployeeByIdTestCase() throws Exception{
+
+		Long value = 100L;
+		Optional<Employee> emp = Optional.ofNullable(value == null ? new Employee("firstname", "lastname", "emailid") : new Employee("firstname", "lastname", "emailid"));
+		Mockito.when(employeeRepository.findById(100L)).thenReturn(emp);
+
+
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("employees/100").accept(MediaType.ALL);
+
+		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+		//assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+		System.out.println("getcontent"+result.getResponse().getContentAsString());
+		assertNotEquals(null, result.getResponse().getContentAsString());
+
+
+	}
+
+
+	@Test
+	public void createEmployeeTestCase() throws Exception{
+
+
+		
+		String inputJson = "{\"id\":101,\"firstName\":\"sunil\",\"lastName\":\"ganga\",\"email\":\"sunil@gmail.com\"}";
+
+
+		Mockito.when(employeeRepository.findById(100L)).thenReturn(null);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/employees")
+				.contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson);
+
+		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+		//assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+		System.out.println("getcontent"+result.getResponse().getContentAsString());
+		assertNotEquals(null, result.getResponse().getContentAsString());
+
+
+	}
+
+
+	@Test
+	public void updateEmployeeTestCase() throws Exception{
+
+		String uri = "/employees/100";
+		String inputJson = "{\"id\":101,\"firstName\":\"sunil\",\"lastName\":\"ganga\",\"email\":\"sunil@gmail.com\"}";
+
+
+		Mockito.when(employeeRepository.findById(100L)).thenReturn(null);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.put(uri)
+				.contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson);
+
+		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+		//assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+		System.out.println("getcontent"+result.getResponse().getContentAsString());
+		assertNotEquals(null, result.getResponse().getContentAsString());
+
+	}
+
+
+	@Test
+	public void deleteEmployeeTestCase() throws Exception{
+
+		String uri = "/employees/100";
+		String inputJson = "{\"id\":101,\"firstName\":\"sunil\",\"lastName\":\"ganga\",\"email\":\"sunil@gmail.com\"}";
+
+
+		Mockito.when(employeeRepository.findById(100L)).thenReturn(null);
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.delete(uri)
+				.contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson);
+
+		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+		//assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+		System.out.println("getcontent"+result.getResponse().getContentAsString());
+		assertNotEquals(null, result.getResponse().getContentAsString());
+
+
+	}
 }
